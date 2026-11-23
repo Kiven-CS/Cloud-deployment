@@ -1,0 +1,7 @@
+.azure/
+.env
+.ruff_cache/
+.venv/
+__pycache__/
+*.py[cod]
+.azure

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Home | Hello AZD{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <p class="eyebrow">PYTHON + AZURE</p>
+  <h1>Hello, customized template!</h1>
+  <p class="lead">Provision and deploy a complete Python application with one developer-friendly workflow.</p>
+</section>
+<section class="panel intro-panel">
+  <h2>What is the Azure Developer CLI?</h2>
+  <p>The Azure Developer CLI (azd) accelerates the journey from local development to Azure. Its commands map to key stages in your workflow, whether you work in a terminal, an editor, or continuous integration.</p>
+</section>
+<div class="home-grid">
+  <section class="panel">
+    <h2>This template completed the following tasks</h2>
+    <ol class="timeline">
+      <li>Packaged the Python app for deployment</li>
+      <li>Created an Azure Container Registry</li>
+      <li>Created an Azure Container Apps environment and app</li>
+      <li>Created Blob and Table Storage resources</li>
+      <li>Created and assigned a managed identity</li>
+      <li>Configured identity-based access to Storage</li>
+      <li>Deployed the app to Azure Container Apps</li>
+      <li class="complete">The app is ready to use</li>
+    </ol>
+    <a class="button" href="/demo">Try the demo app <span aria-hidden="true">→</span></a>
+  </section>
+  <div class="panel-stack">
+    <section class="panel link-panel">
+      <h2>Learning resources</h2>
+      <a href="https://learn.microsoft.com/azure/developer/azure-developer-cli/overview">Azure Developer CLI documentation</a>
+      <a href="https://azure.github.io/awesome-azd/">Awesome AZD template gallery</a>
+      <a href="https://learn.microsoft.com/azure/developer/python/">Python on Azure documentation</a>
+    </section>
+    <section class="panel link-panel">
+      <h2>Explore the template</h2>
+      <p>Open <code>azure.yaml</code>, then follow the resource modules under <code>infra/core</code> to see how azd connects application code to Azure.</p>
+    </section>
+  </div>
+</div>
+{% endblock %}

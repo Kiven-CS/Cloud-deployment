@@ -1,0 +1,1 @@
+"""Hello AZD Python application."""

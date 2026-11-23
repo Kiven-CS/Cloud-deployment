@@ -1,0 +1,30 @@
+trigger:
+  - main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: "3.14"
+  - script: python -m pip install --upgrade pip==26.2.1 && pip install --requirement src/requirements.lock && pip install -e "./src[dev]"
+    displayName: Install dependencies
+  - script: ruff check src && ruff format --check src && pip-audit --requirement src/requirements.lock
+    displayName: Validate application
+  - task: setup-azd@0
+    displayName: Install azd
+  - pwsh: azd config set auth.useAzCliAuth "true"
+    displayName: Configure Azure CLI authentication
+  - task: AzureCLI@2
+    displayName: Provision and deploy
+    inputs:
+      azureSubscription: azconnection
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: azd up --no-prompt
+    env:
+      AZURE_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
+      AZURE_ENV_NAME: $(AZURE_ENV_NAME)
+      AZURE_LOCATION: $(AZURE_LOCATION)
+      AZD_INITIAL_ENVIRONMENT_CONFIG: $(secrets.AZD_INITIAL_ENVIRONMENT_CONFIG)

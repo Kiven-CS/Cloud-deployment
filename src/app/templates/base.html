@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Hello AZD{% endblock %}</title>
+  <link href="/static/styles.css" rel="stylesheet">
+  <link href="/static/favicon.svg" rel="icon" type="image/svg+xml">
+</head>
+<body>
+  <header class="app-bar"><a class="brand" href="/">Hello AZD</a></header>
+  <div class="app-shell">
+    <nav class="side-nav" aria-label="Primary navigation">
+      <a class="nav-link {% if request.url.path == '/' %}active{% endif %}" href="/"><span class="nav-icon" aria-hidden="true">⌂</span> Home</a>
+      <a class="nav-link {% if request.url.path == '/demo' %}active{% endif %}" href="/demo"><span class="nav-icon" aria-hidden="true">✓</span> Demo App</a>
+    </nav>
+    <main class="content">{% block content %}{% endblock %}</main>
+  </div>
+</body>
+</html>
