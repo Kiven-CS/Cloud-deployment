@@ -53,10 +53,17 @@ resource app 'Microsoft.App/containerApps@2025-01-01' = {
         targetPort: targetPort
         transport: 'auto'
       }
+      secrets: [
+        {
+          name: 'acr-password'
+          value: containerRegistry.listCredentials().passwords[0].value
+        }
+      ]
       registries: [
         {
           server: containerRegistry.properties.loginServer
-          identity: userIdentity.id
+          username: containerRegistry.name
+          passwordSecretRef: 'acr-password'
         }
       ]
     }
