@@ -57,7 +57,7 @@ jobs:
       - name: Build and Push Container Image
         run: |
          RG="rg-$AZURE_ENV_NAME"
-         ACR_NAME=$(az acr list -g "$RG" --query ".name" -o tsv)
+         ACR_NAME=$(az acr list -g "$RG" --query "[0].name" -o tsv)
          IMAGE="$ACR_NAME.azurecr.io/hello-azd-python:${{ github.sha }}"
 
          az acr login --name "$ACR_NAME"
