@@ -64,6 +64,14 @@ jobs:
           ACA_NAME=$(az containerapp list -g "$RG" --query "[0].name" -o tsv)
           IMAGE="$ACR_NAME.azurecr.io/hello-azd-python:${{ github.sha }}"
 
+          ACR_PASS=$(az acr credential show -n "$ACR_NAME" --query "passwords[0].value" -o tsv)
+          az containerapp registry set \
+            --name "$ACA_NAME" \
+            --resource-group "$RG" \
+            --server "$ACR_NAME.azurecr.io" \
+            --username "$ACR_NAME" \
+            --password "$ACR_PASS"
+
           az acr login --name "$ACR_NAME"
           docker build -t "$IMAGE" ./src
           docker push "$IMAGE"
@@ -72,3 +80,4 @@ jobs:
             --name "$ACA_NAME" \
             --resource-group "$RG" \
             --image "$IMAGE"
+
