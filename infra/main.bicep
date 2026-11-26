@@ -135,7 +135,7 @@ module web './core/host/container-app.bicep' = {
     location: location
     tags: union(tags, { 'azd-service-name': serviceName })
     targetPort: 8080
-    imageName: !empty(containerImageName) ? containerImageName : '://microsoft.com'
+    imageName: !empty(containerImageName) ? containerImageName : 'nginx:alpine'
     env: [
       {
         name: 'AZURE_MANAGED_IDENTITY_CLIENT_ID'

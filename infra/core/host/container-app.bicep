@@ -8,7 +8,7 @@ param containerRegistryName string
 param env array = []
 param identityName string
 param targetPort int = 8080
-param imageName string = '://microsoft.com'
+param imageName string = 'nginx:alpine'
 
 resource userIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   name: identityName
