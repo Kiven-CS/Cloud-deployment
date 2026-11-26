@@ -23,6 +23,7 @@ param containerAppsEnvName string = ''
 param containerAppsAppName string = ''
 param containerRegistryName string = ''
 param resourceGroupName string = ''
+param containerImageName string = ''
 param serviceName string = 'aca'
 
 var abbreviations = loadJsonContent('./abbreviations.json')
@@ -134,6 +135,7 @@ module web './core/host/container-app.bicep' = {
     location: location
     tags: union(tags, { 'azd-service-name': serviceName })
     targetPort: 8080
+    imageName: !empty(containerImageName) ? containerImageName : '://microsoft.com'
     env: [
       {
         name: 'AZURE_MANAGED_IDENTITY_CLIENT_ID'

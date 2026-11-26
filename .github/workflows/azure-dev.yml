@@ -47,9 +47,6 @@ jobs:
           --federated-credential-provider github
           --tenant-id "$AZURE_TENANT_ID"
 
-      - name: Provision Infrastructure (Bicep IaC)
-        run: azd provision --no-prompt
-
       - name: Azure CLI Login
         uses: azure/login@v2
         with:
@@ -57,27 +54,18 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Build, Push, and Deploy Container Revision
+      - name: Build and Push Container Image
         run: |
           RG="rg-$AZURE_ENV_NAME"
           ACR_NAME=$(az acr list -g "$RG" --query "[0].name" -o tsv)
-          ACA_NAME=$(az containerapp list -g "$RG" --query "[0].name" -o tsv)
           IMAGE="$ACR_NAME.azurecr.io/hello-azd-python:${{ github.sha }}"
-
-          ACR_PASS=$(az acr credential show -n "$ACR_NAME" --query "passwords[0].value" -o tsv)
-          az containerapp registry set \
-            --name "$ACA_NAME" \
-            --resource-group "$RG" \
-            --server "$ACR_NAME.azurecr.io" \
-            --username "$ACR_NAME" \
-            --password "$ACR_PASS"
 
           az acr login --name "$ACR_NAME"
           docker build -t "$IMAGE" ./src
           docker push "$IMAGE"
+          echo "CONTAINER_IMAGE_NAME=$IMAGE" >> $GITHUB_ENV
 
-          az containerapp update \
-            --name "$ACA_NAME" \
-            --resource-group "$RG" \
-            --image "$IMAGE"
+      - name: Provision Infrastructure & Deploy Revision
+        run: azd provision --no-prompt
+
 

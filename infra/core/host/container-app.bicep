@@ -8,6 +8,7 @@ param containerRegistryName string
 param env array = []
 param identityName string
 param targetPort int = 8080
+param imageName string = '://microsoft.com'
 
 resource userIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   name: identityName
@@ -70,7 +71,7 @@ resource app 'Microsoft.App/containerApps@2025-01-01' = {
     template: {
       containers: [
         {
-          image: 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
+          image: 'imageName'
           name: 'main'
           env: env
           resources: {
