@@ -66,6 +66,7 @@ jobs:
 
          azd env new "$AZURE_ENV_NAME" --no-prompt || true
          azd env set CONTAINER_IMAGE_NAME "$IMAGE"
+         echo "CONTAINER_IMAGE_NAME=$IMAGE" >> $GITHUB_ENV
 
 
       - name: Provision Infrastructure & Deploy Revision
