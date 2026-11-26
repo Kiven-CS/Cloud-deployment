@@ -71,7 +71,7 @@ resource app 'Microsoft.App/containerApps@2025-01-01' = {
     template: {
       containers: [
         {
-          image: 'imageName'
+          image: imageName
           name: 'main'
           env: env
           resources: {
