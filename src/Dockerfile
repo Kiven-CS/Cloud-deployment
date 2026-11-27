@@ -8,11 +8,14 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-RUN addgroup --system app && adduser --system --ingroup app app
+RUN apt-get update && \
+    apt-get upgrade -y --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/* && \
+    addgroup --system app && adduser --system --ingroup app app
 
 COPY pyproject.toml requirements.lock ./
 COPY app ./app
-RUN python -m pip install --upgrade pip==26.2.1 \
+RUN python -m pip install --upgrade pip \
     && python -m pip install --requirement requirements.lock \
     && python -m pip install --no-deps .
 
