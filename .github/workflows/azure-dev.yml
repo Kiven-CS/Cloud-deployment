@@ -70,7 +70,7 @@ jobs:
           echo "CONTAINER_IMAGE_NAME=$IMAGE" >> $GITHUB_ENV
 
       - name: Scan Container Image with Trivy
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ env.CONTAINER_IMAGE_NAME }}
           format: table
