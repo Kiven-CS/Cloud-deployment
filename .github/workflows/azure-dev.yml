@@ -26,7 +26,12 @@ jobs:
       - run: ruff check src
       - run: ruff format --check src
       - run: pip-audit --requirement src/requirements.lock
-      - run: pytest src/tests
+      - name: Run unit & API tests
+        env:
+          STORAGE_URL: https://windows.net
+          TABLES_URL: https://windows.net
+        run: pytest src/tests
+
 
   deploy:
     needs: validate
