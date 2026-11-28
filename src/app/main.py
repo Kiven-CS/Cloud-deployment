@@ -109,8 +109,21 @@ def create_app(ticket_store: TicketStore | None = None) -> FastAPI:
     application.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
 
     @application.get("/healthz", include_in_schema=False)
-    def health() -> dict[str, str]:
-        return {"status": "healthy"}
+    def health() -> Response:
+        try:
+            store.check_health()
+        except Exception:
+            logger.exception("Health check failed")
+            return PlainTextResponse(
+                '{"status": "unhealthy"}',
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                media_type="application/json",
+            )
+        return PlainTextResponse(
+            '{"status": "healthy"}',
+            status_code=status.HTTP_200_OK,
+            media_type="application/json",
+        )
 
     @application.get("/", response_class=HTMLResponse)
     def home(request: Request) -> HTMLResponse:

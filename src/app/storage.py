@@ -30,6 +30,8 @@ class TicketStore(Protocol):
 
     def delete_attachment(self, blob_name: str) -> None: ...
 
+    def check_health(self) -> None: ...
+
     def close(self) -> None: ...
 
 
@@ -48,6 +50,15 @@ class AzureTicketStore:
             credential=self._credential,
         )
         self._table_client = table_service.get_table_client("tickets")
+
+        def check_health(self) -> None:
+            self._blob_service.get_container_client("attachments").get_container_properties()
+            next(
+                self._table_client.query_entities(
+                    "PartitionKey eq 'healthcheck'", results_per_page=1
+                ),
+                None,
+            )
 
     def list_tickets(self) -> Iterable[SupportTicket]:
         entities = self._table_client.query_entities("PartitionKey eq 'helpdesk'")

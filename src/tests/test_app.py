@@ -7,9 +7,14 @@ from app.models import SupportTicket
 
 
 class FakeTicketStore:
-    def __init__(self) -> None:
+    def __init__(self, *, healthy: bool = True) -> None:
         self.tickets: list[SupportTicket] = []
         self.attachments: dict[str, bytes] = {}
+        self.healthy = healthy
+
+    def check_health(self) -> None:
+        if not self.healthy:
+            raise RuntimeError("Simulated storage outage")
 
     def list_tickets(self) -> Iterable[SupportTicket]:
         return list(self.tickets)
@@ -77,3 +82,10 @@ def test_submit_ticket_rejects_missing_csrf() -> None:
         },
     )
     assert response.status_code == 403
+
+
+def test_healthz_returns_503_when_storage_unhealthy() -> None:
+    client = TestClient(create_app(ticket_store=FakeTicketStore(healthy=False)))
+    response = client.get("/healthz")
+    assert response.status_code == 503
+    assert response.json() == {"status": "unhealthy"}

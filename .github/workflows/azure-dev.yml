@@ -60,6 +60,18 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Bootstrap Base Infrastructure if Missing
+        run: |
+          RG="rg-$AZURE_ENV_NAME"
+          if [ "$(az group exists --name "$RG")" = "false" ]; then
+            echo "Resource group $RG not found. Provisioning base ACR and infrastructure..."
+            azd provision --no-prompt
+          else
+            echo "Resource group $RG already exists. Skipping cold bootstrap."
+          fi
+
+
+
       - name: Build Container Image
         run: |
          RG="rg-$AZURE_ENV_NAME"
