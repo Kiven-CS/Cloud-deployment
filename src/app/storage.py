@@ -51,11 +51,13 @@ class AzureTicketStore:
         )
         self._table_client = table_service.get_table_client("tickets")
 
-        def check_health(self) -> None:
-            self._blob_service.get_container_client("attachments").get_container_properties()
-            entities = self._table_client.query_entities("PartitionKey eq 'healthcheck'", select=["RowKey"])
-            next(entities, None)
-
+    def check_health(self) -> None:
+        self._blob_service.get_container_client("attachments").get_container_properties()
+        entities = self._table_client.query_entities(
+            "PartitionKey eq 'healthcheck'",
+            select=["RowKey"],
+        )
+        next(entities, None)
 
 
     def list_tickets(self) -> Iterable[SupportTicket]:
