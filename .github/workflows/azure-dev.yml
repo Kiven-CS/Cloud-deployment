@@ -72,12 +72,12 @@ jobs:
 
 
 
-      - name: Build Container Image
-        run: |
+          - name: Build Container Image
+          run: |
           RG="rg-$AZURE_ENV_NAME"
-          ACR_NAME=$(az acr list -g "$RG" --query '.name' -o tsv)
-          ACA_NAME=$(az containerapp list -g "$RG" --query '.name' -o tsv)
-          PREV_IMAGE=$(az containerapp show -n "$ACA_NAME" -g "$RG" --query 'properties.template.containers.image' -o tsv || true)
+          ACR_NAME=$(az acr list -g "$RG" --query "[].name" -o tsv | head -n 1)
+          ACA_NAME=$(az containerapp list -g "$RG" --query "[].name" -o tsv | head -n 1)
+          PREV_IMAGE=$(az containerapp show -n "$ACA_NAME" -g "$RG" --query "properties.template.containers[].image" -o tsv | head -n 1 || true)
 
           IMAGE="$ACR_NAME.azurecr.io/hello-azd-python:${{ github.sha }}"
           docker build -t "$IMAGE" ./src
@@ -86,6 +86,7 @@ jobs:
           echo "ACA_NAME=$ACA_NAME" >> $GITHUB_ENV
           echo "PREV_IMAGE=$PREV_IMAGE" >> $GITHUB_ENV
           echo "CONTAINER_IMAGE_NAME=$IMAGE" >> $GITHUB_ENV
+
 
 
 
