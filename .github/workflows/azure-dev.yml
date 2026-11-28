@@ -74,18 +74,19 @@ jobs:
 
       - name: Build Container Image
         run: |
-         RG="rg-$AZURE_ENV_NAME"
-         ACR_NAME=$(az acr list -g "$RG" --query '[0].name' -o tsv)
-         ACA_NAME=$(az containerapp list -g "$RG" --query '[0].name' -o tsv)
-         PREV_REVISION=$(az containerapp revision list -n "$ACA_NAME" -g "$RG" --query '[?properties.active].name | [0]' -o tsv || true)
+          RG="rg-$AZURE_ENV_NAME"
+          ACR_NAME=$(az acr list -g "$RG" --query '.name' -o tsv)
+          ACA_NAME=$(az containerapp list -g "$RG" --query '.name' -o tsv)
+          PREV_IMAGE=$(az containerapp show -n "$ACA_NAME" -g "$RG" --query 'properties.template.containers.image' -o tsv || true)
 
-         IMAGE="$ACR_NAME.azurecr.io/hello-azd-python:${{ github.sha }}"
-         docker build -t "$IMAGE" ./src
-         echo "RG=$RG" >> $GITHUB_ENV
-         echo "ACR_NAME=$ACR_NAME" >> $GITHUB_ENV
-         echo "ACA_NAME=$ACA_NAME" >> $GITHUB_ENV
-         echo "PREV_REVISION=$PREV_REVISION" >> $GITHUB_ENV
-         echo "CONTAINER_IMAGE_NAME=$IMAGE" >> $GITHUB_ENV
+          IMAGE="$ACR_NAME.azurecr.io/hello-azd-python:${{ github.sha }}"
+          docker build -t "$IMAGE" ./src
+          echo "RG=$RG" >> $GITHUB_ENV
+          echo "ACR_NAME=$ACR_NAME" >> $GITHUB_ENV
+          echo "ACA_NAME=$ACA_NAME" >> $GITHUB_ENV
+          echo "PREV_IMAGE=$PREV_IMAGE" >> $GITHUB_ENV
+          echo "CONTAINER_IMAGE_NAME=$IMAGE" >> $GITHUB_ENV
+
 
 
       - name: Scan Container Image with Trivy
@@ -115,7 +116,7 @@ jobs:
          APP_FQDN=$(az containerapp show -n "$ACA_NAME" -g "$RG" --query 'properties.configuration.ingress.fqdn' -o tsv)
          HEALTH_URL="https://$APP_FQDN/healthz"
          echo "Checking health endpoint: $HEALTH_URL"
-         for i in $(seq 1 12); do
+         for i in $(seq 1 24); do
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL" || true)
           if [ "$STATUS" -eq 200 ]; then
            echo "Smoke test passed (HTTP 200)!"
@@ -128,11 +129,13 @@ jobs:
          exit 1
 
       - name: Rollback to Previous Revision on Failure
-        if: failure() && env.PREV_REVISION != ''
+        if: failure() && env.PREV_IMAGE != '' && env.PREV_IMAGE != '://microsoft.com'
         run: |
          echo "Deployment or smoke test failed. Rolling back $ACA_NAME to $PREV_REVISION..."
-         az containerapp revision activate --name "$ACA_NAME" --resource-group "$RG" --revision "$PREV_REVISION"
-         az containerapp ingress traffic set --name "$ACA_NAME" --resource-group "$RG" --revision-weight "$PREV_REVISION=100"
+         az containerapp update \
+            --name "$ACA_NAME" \
+            --resource-group "$RG" \
+            --image "$PREV_IMAGE"
 
 
 
