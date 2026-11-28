@@ -59,7 +59,6 @@ class AzureTicketStore:
         )
         next(entities, None)
 
-
     def list_tickets(self) -> Iterable[SupportTicket]:
         entities = self._table_client.query_entities("PartitionKey eq 'helpdesk'")
         return [
