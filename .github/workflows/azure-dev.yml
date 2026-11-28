@@ -62,18 +62,18 @@ jobs:
 
       - name: Bootstrap Base Infrastructure if Missing
         run: |
-          RG="rg-$AZURE_ENV_NAME"
-          if [ "$(az group exists --name "$RG")" = "false" ]; then
+           RG="rg-$AZURE_ENV_NAME"
+           if [ "$(az group exists --name "$RG")" = "false" ]; then
             echo "Resource group $RG not found. Provisioning base ACR and infrastructure..."
             azd provision --no-prompt
-          else
+           else
             echo "Resource group $RG already exists. Skipping cold bootstrap."
-          fi
+           fi
 
 
 
-          - name: Build Container Image
-          run: |
+      - name: Build Container Image
+        run: |
           RG="rg-$AZURE_ENV_NAME"
           ACR_NAME=$(az acr list -g "$RG" --query "[].name" -o tsv | head -n 1)
           ACA_NAME=$(az containerapp list -g "$RG" --query "[].name" -o tsv | head -n 1)
@@ -129,14 +129,15 @@ jobs:
          echo "Smoke test failed after 60s!"
          exit 1
 
-      - name: Rollback to Previous Revision on Failure
-        if: failure() && env.PREV_IMAGE != '' && env.PREV_IMAGE != '://microsoft.com'
+      - name: Rollback to Previous Image on Failure
+        if: failure() && env.PREV_IMAGE != '' && contains(env.PREV_IMAGE, env.ACR_NAME)
         run: |
-         echo "Deployment or smoke test failed. Rolling back $ACA_NAME to $PREV_REVISION..."
+         echo "Deployment or smoke test failed. Rolling back $ACA_NAME to $PREV_IMAGE..."
          az containerapp update \
-            --name "$ACA_NAME" \
-            --resource-group "$RG" \
-            --image "$PREV_IMAGE"
+         --name "$ACA_NAME" \
+         --resource-group "$RG" \
+         --image "$PREV_IMAGE"
+
 
 
 
